@@ -6,6 +6,32 @@ import NovelReaderMenu from '../components/NovelReaderMenu.jsx';
 import ChapterListMenu from '../components/ChapterListMenu.jsx';
 import { slugify } from '../utils/slugify';
 
+// NEW: Copied the Kofi banner component here for use in the reader
+const KofiSupportBanner = ({ kofiUrl = '#' }) => {
+  return (
+    <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mt-12 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
+      <div className="flex-grow">
+        <h3 className="font-semibold text-lg text-white mb-1">
+          Want to read more chapters and support us? ☕
+        </h3>
+        <p className="text-gray-300 text-sm">
+          Join our Ko-fi membership for early access to unreleased chapters of our ongoing novels!
+        </p>
+      </div>
+      <div className="flex-shrink-0 mt-3 md:mt-0">
+        <a 
+          href={kofiUrl} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="inline-flex items-center bg-[#13C3FF] hover:bg-[#00A2D9] text-black font-bold py-2 px-5 rounded-lg transition-colors duration-200 shadow-md"
+        >
+          Join on Ko-fi
+        </a>
+      </div>
+    </div>
+  );
+};
+
 const getChapterNumber = (key) => {
   const match = key.match(/(\d+(\.\d+)?)$/);
   return match ? parseFloat(match[1]) : 0;
@@ -178,10 +204,10 @@ function NovelReader() {
   );
   if (!novelData) return <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-400"><div className="text-xl font-semibold">Novel data could not be loaded.</div></div>;
 
-  const chapterNum = getChapterNumber(chapterNumber);
-  const chapterSpecificTitle = novelData.chapters[chapterNumber]?.title;
-  const fullChapterTitle = `Chapter ${chapterNum}${chapterSpecificTitle ? ` - ${chapterSpecificTitle}` : ''}`;
-  
+  const chapterNum = getChapterNumber(chapterNumber);
+  const chapterSpecificTitle = novelData.chapters[chapterNumber]?.title;
+  const fullChapterTitle = `Chapter ${chapterNum}${chapterSpecificTitle ? ` - ${chapterSpecificTitle}` : ''}`;
+  
   const readerContainerClasses = `min-h-screen flex flex-col ${currentContrast === 'high' ? 'bg-black text-gray-100' : 'bg-gray-950 text-white'}`;
   const contentStyle = { fontSize: `${currentTextSize}px`, lineHeight: `${currentLineHeight}px` };
 
@@ -212,33 +238,37 @@ function NovelReader() {
           <>
             <h1 className="text-3xl sm:text-4xl font-bold text-indigo-400 mb-2 text-center">{novelData.title}</h1>
             <h2 className="text-2xl sm:text-3xl font-semibold text-gray-200 text-center">{fullChapterTitle}</h2>
-            
-            {/* ✨ MODIFIED: Increased bottom margin for a larger gap */}
-            <nav aria-label="breadcrumb" className="text-sm text-gray-400 mt-4 mb-12 text-center">
-              <ol className="flex items-center justify-center space-x-2 flex-wrap">
-                <li><Link to="/" className="hover:text-indigo-400">Home</Link></li>
-                <li className="text-gray-500">›</li>
-                <li>
-                  <Link 
-                    to={`/novel/${novelSlug}`} 
-                    title={novelData.title} 
-                    className="hover:text-indigo-400"
-                  >
-                    {novelData.title}
-                  </Link>
-                </li>
-                <li className="text-gray-500">›</li>
-                <li className="font-semibold text-gray-200 truncate">
-                  Chapter {chapterNum}
-                </li>
-              </ol>
-            </nav>
+            
+            <nav aria-label="breadcrumb" className="text-sm text-gray-400 mt-4 mb-12 text-center">
+              <ol className="flex items-center justify-center space-x-2 flex-wrap">
+                <li><Link to="/" className="hover:text-indigo-400">Home</Link></li>
+                <li className="text-gray-500">›</li>
+                <li>
+                  <Link 
+                    to={`/novel/${novelSlug}`} 
+                    title={novelData.title} 
+                    className="hover:text-indigo-400"
+                  >
+                    {novelData.title}
+                  </Link>
+                </li>
+                <li className="text-gray-500">›</li>
+                <li className="font-semibold text-gray-200 truncate">
+                  Chapter {chapterNum}
+                </li>
+              </ol>
+            </nav>
             
             <div className={`text-lg leading-relaxed prose prose-invert max-w-none ${currentFont}`} style={contentStyle}>
               <ReactMarkdown components={{ p: ({ node, ...props }) => <p className="mb-6" {...props} /> }}>
                 {chapterContent}
               </ReactMarkdown>
             </div>
+
+            {/* ✨ ADDED: Conditionally render the banner ONLY on the last chapter */}
+            {!loadingChapter && !nextChapterKey && (
+              <KofiSupportBanner kofiUrl="https://ko-fi.com/your_username_here" />
+            )}
 
             <nav className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
               <div className="w-full sm:w-auto flex justify-start">
@@ -280,7 +310,7 @@ function NovelReader() {
                     to={`/novel/${novelSlug}/${nextChapterKey}`} 
                     className="w-full sm:w-auto flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-950 focus:ring-indigo-500"
                   >
-           Next
+           Next
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                     </svg>
