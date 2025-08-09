@@ -5,8 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import NovelReaderMenu from '../components/NovelReaderMenu.jsx';
 import ChapterListMenu from '../components/ChapterListMenu.jsx';
 import { slugify } from '../utils/slugify';
+import AdComponent from '../components/AdComponent.jsx';
 
-// NEW: Copied the Kofi banner component here for use in the reader
 const KofiSupportBanner = ({ kofiUrl = '#' }) => {
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mt-12 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
@@ -37,7 +37,6 @@ const getChapterNumber = (key) => {
   return match ? parseFloat(match[1]) : 0;
 };
 
-// Helper function to get initial settings from localStorage
 const getInitialSettings = () => {
   try {
     const savedSettings = localStorage.getItem('novelReaderSettings');
@@ -50,6 +49,8 @@ const getInitialSettings = () => {
   return {};
 };
 
+
+// --- Main NovelReader Component ---
 
 function NovelReader() {
   const [chapterContent, setChapterContent] = useState(null);
@@ -259,14 +260,17 @@ function NovelReader() {
               </ol>
             </nav>
             
+            <AdComponent key={`ad-top-${chapterNumber}`} />
+
             <div className={`text-lg leading-relaxed prose prose-invert max-w-none ${currentFont}`} style={contentStyle}>
               <ReactMarkdown components={{ p: ({ node, ...props }) => <p className="mb-6" {...props} /> }}>
                 {chapterContent}
               </ReactMarkdown>
             </div>
-
             
             <KofiSupportBanner kofiUrl="https://ko-fi.com/alucardnovels" />
+
+            <AdComponent key={`ad-bottom-${chapterNumber}`} />
 
             <nav className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
               <div className="w-full sm:w-auto flex justify-start">

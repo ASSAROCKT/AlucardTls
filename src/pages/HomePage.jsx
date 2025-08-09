@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import HeroBanner from '../components/HeroBanner';
 import Footer from '../components/Footer';
 import { slugify } from '../utils/slugify';
+import AdComponent from '../components/AdComponent.jsx';
 
 // --- Child Components for HomePage ---
 
@@ -94,24 +95,16 @@ const AllSeriesGrid = ({ title, items, hoveredItem, tooltipHandlers }) => {
 // --- Data Processing Function ---
 
 const processLatestUpdates = (rawData) => {
-  // Use flatMap to create a single, flat array of all chapters from all novels.
   const allChapters = rawData.flatMap(novel => {
-    // If a novel has no chapters, it will contribute an empty array, which flatMap handles.
     const chapterEntries = Object.entries(novel.chapters || {});
-    
-    // For each chapter, create a new object that includes the novel's info.
     return chapterEntries.map(([chapterKey, chapterDetails]) => ({
-      ...chapterDetails,    // e.g., last_updated, volume
-      title: novel.title,   // Add parent novel's title
-      cover: novel.cover,   // Add parent novel's cover
-      chapterKey: chapterKey, // Keep the chapter key
+      ...chapterDetails,
+      title: novel.title,
+      cover: novel.cover,
+      chapterKey: chapterKey,
     }));
   });
-
-  // Sort the entire list of chapters by the most recent 'last_updated' timestamp.
   const sortedChapters = allChapters.sort((a, b) => b.last_updated - a.last_updated);
-  
-  // Return the top 8 most recent chapters.
   return sortedChapters.slice(0, 8);
 };
 
@@ -168,6 +161,12 @@ const HomePage = () => {
       <div className="container mx-auto p-4">
         <HeroBanner />
         <SeriesGrid title="Latest Novel Releases" items={novels.latest} itemType="novel" />
+        
+        {/* ======================= AD PLACEMENT ======================= */}
+        <div className="my-12">
+            <AdComponent />
+        </div>
+
         <AllSeriesGrid
           title="All Series"
           items={allSeries}
