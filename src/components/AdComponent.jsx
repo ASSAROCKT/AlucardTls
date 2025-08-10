@@ -5,6 +5,8 @@ const AdComponent = () => {
   const adContainerRef = useRef(null);
 
   useEffect(() => {
+    // All the ad-loading logic has been commented out.
+    /*
     // Check if the ref is attached to an element
     if (!adContainerRef.current) {
       return;
@@ -31,7 +33,8 @@ const AdComponent = () => {
         adContainerRef.current.innerHTML = '';
       }
     };
-  }, []); // The empty dependency array ensures this runs only once per instance
+    */
+  }, []); // The empty dependency array ensures this runs only once
 
   // This outer div is unique to each instance of the component
   return (
