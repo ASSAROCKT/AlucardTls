@@ -5,8 +5,34 @@ import Footer from '../components/Footer';
 import { slugify } from '../utils/slugify';
 import AdComponent from '../components/AdComponent.jsx';
 
-// --- Child Components for HomePage ---
+// --- NEW: Time Formatting Utility ---
+const formatRelativeTime = (timestamp) => {
+  if (!timestamp) return '';
+  const now = Date.now();
+  const seconds = Math.floor((now - timestamp) / 1000);
 
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + (Math.floor(interval) === 1 ? " year" : " years");
+  
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + (Math.floor(interval) === 1 ? " month" : " months");
+  
+  interval = seconds / 604800;
+  if (interval > 1) return Math.floor(interval) + (Math.floor(interval) === 1 ? " week" : " weeks");
+  
+  interval = seconds / 86400;
+  if (interval > 1) return Math.floor(interval) + (Math.floor(interval) === 1 ? " day" : " days");
+  
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + (Math.floor(interval) === 1 ? " hour" : " hours");
+  
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + (Math.floor(interval) === 1 ? " min" : " mins");
+  
+  return "Just now";
+};
+
+// --- MODIFIED: Child Component for HomePage ---
 const SeriesGrid = ({ title, items, itemType }) => {
   if (!items || items.length === 0) return null;
   const basePath = itemType === 'novel' ? '/novel' : '';
@@ -30,9 +56,11 @@ const SeriesGrid = ({ title, items, itemType }) => {
                     {item.title}
                   </Link>
                 </h3>
-                <p className="text-gray-400 text-sm">
-                  {item.volume && `Vol. ${item.volume} `}Ch. {item.chapterKey.replace('chapter-', '')}
-                </p>
+                {/* This section now shows the chapter and relative time */}
+                <div className="flex justify-between items-center text-gray-400 text-sm">
+                  <span>Chapter {item.chapterKey.replace('chapter-', '')}</span>
+                  <span className="text-gray-500">{formatRelativeTime(item.last_updated)}</span>
+                </div>
               </div>
             </Link>
           </div>
@@ -93,24 +121,43 @@ const AllSeriesGrid = ({ title, items, hoveredItem, tooltipHandlers }) => {
 };
 
 // --- Data Processing Function ---
-
 const processLatestUpdates = (rawData) => {
-  const allChapters = rawData.flatMap(novel => {
-    const chapterEntries = Object.entries(novel.chapters || {});
-    return chapterEntries.map(([chapterKey, chapterDetails]) => ({
-      ...chapterDetails,
-      title: novel.title,
-      cover: novel.cover,
-      chapterKey: chapterKey,
-    }));
-  });
-  const sortedChapters = allChapters.sort((a, b) => b.last_updated - a.last_updated);
-  return sortedChapters.slice(0, 8);
+  // 1. Map over each novel to find its single most recent chapter
+  const latestChapterPerNovel = rawData
+    .map(novel => {
+      const chapterEntries = Object.entries(novel.chapters || {});
+
+      // If the novel has no chapters, it can't be in the latest releases.
+      if (chapterEntries.length === 0) {
+        return null;
+      }
+
+      // 2. Sort chapters for the *current novel* by date to find the newest one.
+      const [latestChapterKey, latestChapterDetails] = chapterEntries.sort(
+        ([, a], [, b]) => b.last_updated - a.last_updated
+      )[0]; // The [0] gets the most recent chapter after sorting.
+
+      // 3. Return a single object representing the novel's latest update.
+      return {
+        ...latestChapterDetails,
+        title: novel.title,
+        cover: novel.cover,
+        chapterKey: latestChapterKey,
+      };
+    })
+    .filter(Boolean); // Remove any novels that had no chapters (returned as null).
+
+  // 4. Sort the list of unique novels by their latest chapter's update time.
+  const sortedLatestNovels = latestChapterPerNovel.sort(
+    (a, b) => b.last_updated - a.last_updated
+  );
+
+  // 5. Return the top 8 most recently updated novels.
+  return sortedLatestNovels.slice(0, 8);
 };
 
 
 // --- Main HomePage Component ---
-
 const HomePage = () => {
   const [novels, setNovels] = useState({ data: [], latest: [], loading: true, error: null });
   const [allSeries, setAllSeries] = useState([]);
