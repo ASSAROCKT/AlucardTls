@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async'; // 1. Import Helmet
 import Footer from '../components/Footer.jsx';
 import ReactMarkdown from 'react-markdown';
 import NovelReaderMenu from '../components/NovelReaderMenu.jsx';
 import ChapterListMenu from '../components/ChapterListMenu.jsx';
 import { slugify } from '../utils/slugify';
 import AdComponent from '../components/AdComponent.jsx';
+import DisqusComments from '../components/DisqusComments.jsx';
 
 const KofiSupportBanner = ({ kofiUrl = '#' }) => {
   return (
@@ -214,6 +216,32 @@ function NovelReader() {
 
   return (
     <div className={readerContainerClasses}>
+      {/* 2. Add the Helmet component and your script */}
+      <Helmet>
+        <script>
+          {`
+            var removePornInterval;
+            function RemovePornAds() {
+              try {
+                var queue = document.getElementById('disqus_thread');
+                if (!queue) return;
+                var elements = queue.getElementsByTagName('iframe');
+                
+                if (elements.length >= 5) {
+                  elements[1].remove();
+                } else if (elements.length === 4 || elements.length === 2) {
+                  elements[0].remove();
+                }
+              } catch (e) {
+                console.error('Error removing Disqus ad iframe:', e);
+                clearInterval(removePornInterval); // Stop interval on error
+              }
+            }
+            removePornInterval = setInterval(RemovePornAds, 1000);
+          `}
+        </script>
+      </Helmet>
+
       <div className={`fixed bottom-4 right-4 z-40 flex flex-row space-x-3 transition-opacity duration-300 ${showIcons ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <button onClick={handleToggleChapterMenu} className="bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Open chapter list">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -269,6 +297,14 @@ function NovelReader() {
             </div>
             
             <KofiSupportBanner kofiUrl="https://ko-fi.com/alucardnovels" />
+
+            <DisqusComments
+              key={`${novelSlug}-${chapterNumber}`}
+              shortname="https-alucardtranslations-org"
+              novelTitle={novelData.title}
+              novelSlug={novelSlug}
+              chapterKey={chapterNumber}
+            />
 
             <AdComponent key={`ad-bottom-${chapterNumber}`} />
 
