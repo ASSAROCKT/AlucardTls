@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 
 const AdComponent = () => {
-  // Create a ref to attach to our component's root div
   const adContainerRef = useRef(null);
 
   useEffect(() => {
-    // All the ad-loading logic has been commented out.
-    /*
+    // The ad-loading logic is now active.
+    
     // Check if the ref is attached to an element
     if (!adContainerRef.current) {
       return;
@@ -24,16 +23,18 @@ const AdComponent = () => {
     script.setAttribute('data-cfasync', 'false');
 
     // Append the container and the script to our component's div
-    adContainerRef.current.appendChild(adContainer);
-    adContainerRef.current.appendChild(script);
+    // Use a local variable to avoid issues if the ref changes during cleanup
+    const currentAdContainer = adContainerRef.current;
+    currentAdContainer.appendChild(adContainer);
+    currentAdContainer.appendChild(script);
 
     // Cleanup function to remove everything when the component unmounts
     return () => {
-      if (adContainerRef.current) {
-        adContainerRef.current.innerHTML = '';
+      // Clear the innerHTML to remove the ad and script
+      if (currentAdContainer) {
+        currentAdContainer.innerHTML = '';
       }
     };
-    */
   }, []); // The empty dependency array ensures this runs only once
 
   // This outer div is unique to each instance of the component
