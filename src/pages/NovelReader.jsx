@@ -7,7 +7,6 @@ import NovelReaderMenu from '../components/NovelReaderMenu.jsx';
 import ChapterListMenu from '../components/ChapterListMenu.jsx';
 import { slugify } from '../utils/slugify';
 import AdComponent from '../components/AdComponent.jsx';
-import DisqusComments from '../components/DisqusComments.jsx';
 
 const KofiSupportBanner = ({ kofiUrl = '#' }) => {
   return (
@@ -358,13 +357,7 @@ function NovelReader() {
               </div>
             </nav>
 
-            <DisqusComments
-              key={`${novelSlug}-${chapterNumber}`}
-              shortname="https-alucardtranslations-org"
-              novelTitle={novelData.title}
-              novelSlug={novelSlug}
-              chapterKey={chapterNumber}
-            />
+            
 
             <AdComponent key={`ad-bottom-${chapterNumber}`} />
 
