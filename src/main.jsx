@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async'; // 1. Import the provider
+import { HelmetProvider } from 'react-helmet-async';
 
-// Import your page components
+// --- Import your page components ---
 import App from './App.jsx';
 import HomePage from './pages/HomePage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
+import BrowsePage from './pages/BrowsePage.jsx'; // 1. Import the new browse page
 import NovelSeriesPage from './pages/NovelSeriesPage.jsx';
 import NovelReader from './pages/NovelReader.jsx';
 
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'about', element: <AboutPage /> },
+      { path: 'browse', element: <BrowsePage /> }, // 2. Add the route for the browse page
       { path: 'novel/:novelSlug', element: <NovelSeriesPage /> },
       { path: 'novel/:novelSlug/:chapterNumber', element: <NovelReader /> },
     ],
@@ -33,7 +35,6 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {/* 2. Wrap the RouterProvider with HelmetProvider */}
     <HelmetProvider>
       <RouterProvider router={router} />
     </HelmetProvider>
